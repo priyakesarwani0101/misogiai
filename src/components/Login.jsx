@@ -1,11 +1,13 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const Login = () => {
   const navigate = useNavigate();
+  const [error, setError] = useState("");
 
   const handleLogin = (event) => {
     event.preventDefault();
+    setError("");
 
     let email = document.getElementById("email").value;
     let password = document.getElementById("password").value;
@@ -24,14 +26,18 @@ const Login = () => {
     })
       .then((res) => res.json())
       .then((res) => {
-        if( res.status === "success") {
-        localStorage.setItem("token", res.data.access_token);
-        localStorage.setItem("loggedUser", JSON.stringify(res.data.user));
-        alert(`Successfully Logged In.`, res.message)
-        navigate("/");
+        if (res.status === "success") {
+          localStorage.setItem("token", res.data.access_token);
+          localStorage.setItem("loggedUser", JSON.stringify(res.data.user));
+          navigate("/dashboard");
+          alert(`Successfully Logged In.`, res.message)
         } else {
-          alert('Login Failed:', res.message);
+          setError(res.message || "Login failed. Please try again.");
         }
+      })
+      .catch((err) => {
+        setError("An error occurred. Please try again.");
+        console.log(err)
       });
   };
 
@@ -39,8 +45,13 @@ const Login = () => {
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="bg-white shadow-md rounded-lg p-8 w-full max-w-md">
         <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
-          Login to Todo App
+          Login to EventPulse
         </h2>
+        {error && (
+          <div className="mb-4 p-2 bg-red-100 text-red-700 rounded">
+            {error}
+          </div>
+        )}
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
             <label htmlFor="email" className="block text-gray-700 font-medium">

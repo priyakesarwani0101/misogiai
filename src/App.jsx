@@ -1,5 +1,5 @@
 import "./App.css";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import LoginPage from "./components/Login";
 import Navbar from "./components/Navbar";
 import SignupPage from "./components/Signup";
@@ -8,24 +8,79 @@ import Dashboard from "./components/Dashboard";
 import CreateEventForm from "./components/CreateEventForm";
 import AttendeeList from "./components/AttandeeList";
 import EventAnalytics from "./components/EventAnalytics";
+import { useEffect, useState } from "react";
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 console.log("Base URL is:", apiBaseUrl);
 
+// Protected Route component
+const ProtectedRoute = ({ children }) => {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    return <Navigate to="/login" />;
+  }
+  return children;
+};
+
 function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    setIsAuthenticated(!!token);
+  }, []);
+
   return (
     <>
       <Navbar />
       <Routes>
-        <Route path="/" element={<Dashboard />} />
+        <Route
+          path="/"
+          element={
+            isAuthenticated ? (
+              <Navigate to="/dashboard" />
+            ) : (
+              <HomePage />
+            )
+          }
+        />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/create-event" element={<CreateEventForm />} />
-        <Route path="/invite" element={<AttendeeList />} />
-        <Route path="/events/:eventId/analytics" element={<EventAnalytics />} />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/create-event"
+          element={
+            <ProtectedRoute>
+              <CreateEventForm />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/invite"
+          element={
+            <ProtectedRoute>
+              <AttendeeList />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/events/:eventId/analytics"
+          element={
+            <ProtectedRoute>
+              <EventAnalytics />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </>
   );
 }
 
-export default App
+export default App;

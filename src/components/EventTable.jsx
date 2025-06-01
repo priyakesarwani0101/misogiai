@@ -40,7 +40,7 @@ const EventTable = ({
         status: evt.status,
         cancelled: item.cancelled,
         confirmed: item.confirmed,
-        rsvpId: item.id,
+        rsvpId: item.rsvpId,
         checkInEnabled: evt.checkInEnabled || false,
         checkedIn: item.checkedIn || false, // needed for accept/reject API calls
       };

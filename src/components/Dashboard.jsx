@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import EventTabs from "./EventTabs";
 import toast from "react-hot-toast";
-
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 const Dashboard = () => {
   const navigate = useNavigate();
   const [events, setEvents] = useState([]);
@@ -35,7 +35,7 @@ useEffect(() => {
           : "/rsvps/me";
 
       try {
-        const response = await fetch(`https://4f6b-49-36-144-50.ngrok-free.app${endpoint}`, {
+        const response = await fetch(`${apiBaseUrl}${endpoint}`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",

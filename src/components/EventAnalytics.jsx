@@ -24,6 +24,8 @@ ChartJS.register(
   Legend
 );
 
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+
 const EventAnalytics = () => {
   const { eventId } = useParams();
   const navigate = useNavigate();
@@ -34,14 +36,14 @@ const EventAnalytics = () => {
     const fetchAnalytics = async () => {
       const token = localStorage.getItem("token");
       if (!token) {
-        toast.error("Not authenticated. Please log in.");
+        toast.error("Please login to view analytics");
         navigate("/login");
         return;
       }
 
       try {
         const response = await fetch(
-          `https://4f6b-49-36-144-50.ngrok-free.app/events/${eventId}/analytics`,
+          `${apiBaseUrl}/events/${eventId}/analytics`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

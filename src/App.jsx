@@ -8,7 +8,9 @@ import Dashboard from "./components/Dashboard";
 import CreateEventForm from "./components/CreateEventForm";
 import AttendeeList from "./components/AttandeeList";
 import EventAnalytics from "./components/EventAnalytics";
+import EventDetail from "./components/EventDetail";
 import { useEffect, useState } from "react";
+import { Toaster } from "react-hot-toast";
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 console.log("Base URL is:", apiBaseUrl);
@@ -32,6 +34,7 @@ function App() {
 
   return (
     <>
+      <Toaster position="top-right" />
       <Navbar />
       <Routes>
         <Route
@@ -75,6 +78,14 @@ function App() {
           element={
             <ProtectedRoute>
               <EventAnalytics />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/events/:eventId"
+          element={
+            <ProtectedRoute>
+              <EventDetail />
             </ProtectedRoute>
           }
         />

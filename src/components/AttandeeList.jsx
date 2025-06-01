@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import toast from "react-hot-toast";
-
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 const AttendeeList = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -35,7 +35,7 @@ const AttendeeList = () => {
         return;
       }
       try {
-        const response = await fetch(`https://4f6b-49-36-144-50.ngrok-free.app/rsvps/event/${eventId}`, {
+        const response = await fetch(`${apiBaseUrl}/rsvps/event/${eventId}`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -103,7 +103,7 @@ const AttendeeList = () => {
     }
 
     try {
-      const response = await fetch(`https://4f6b-49-36-144-50.ngrok-free.app/rsvps/invite`, {
+      const response = await fetch(`${apiBaseUrl}/rsvps/invite`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

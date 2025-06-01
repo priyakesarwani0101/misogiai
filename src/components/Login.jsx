@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+
 const Login = () => {
   const navigate = useNavigate();
   const [error, setError] = useState("");
@@ -17,7 +19,7 @@ const Login = () => {
       password,
     };
 
-    fetch("https://4f6b-49-36-144-50.ngrok-free.app/auth/login", {
+    fetch(`${apiBaseUrl}/auth/login`, {
       method: "POST",
       body: JSON.stringify(obj),
       headers: {

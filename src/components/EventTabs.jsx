@@ -1,15 +1,16 @@
 import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import EventTable from "./EventTable";
-import EventDetailModal from "./EventDetailModal";
 import EditEventModal from "./EditEventModal";
 import toast from "react-hot-toast";
+
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+
 const EventTabs = ({ events = [], userRole, onEventUpdated }) => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState(
     userRole === "HOST" ? "all" : "my"
   );
-  const [selectedEvent, setSelectedEvent] = useState(null);
   const [eventToEdit, setEventToEdit] = useState(null);
 
   const token = localStorage.getItem("token");
@@ -54,14 +55,9 @@ const EventTabs = ({ events = [], userRole, onEventUpdated }) => {
     }
   }, [userRole]);
 
-  // Row‐click handler: open the modal with this event’s details
+  // Row‐click handler: navigate to event detail page
   const handleRowClick = (eventObj) => {
-    setSelectedEvent(eventObj);
-  };
-
-  // Modal close handler
-  const handleCloseModal = () => {
-    setSelectedEvent(null);
+    navigate(`/events/${eventObj.id}`);
   };
 
   // Edit-click → open edit modal
@@ -74,13 +70,14 @@ const EventTabs = ({ events = [], userRole, onEventUpdated }) => {
 
   // Accept invite (ATTENDEE)
   const handleAcceptInvite = async (rsvpId) => {
+    console.log(rsvpId,'sdhb')
     if (!token) {
       toast.error("Not authenticated");
       return;
     }
     try {
       const res = await fetch(
-        `https://4f6b-49-36-144-50.ngrok-free.app/rsvps/${rsvpId}/accept`,
+        `${apiBaseUrl}/rsvps/${rsvpId}/accept`,
         {
           method: "PUT",
           headers: {
@@ -116,7 +113,7 @@ const EventTabs = ({ events = [], userRole, onEventUpdated }) => {
     }
     try {
       const res = await fetch(
-        `https://4f6b-49-36-144-50.ngrok-free.app/rsvps/${rsvpId}/cancel`,
+        `${apiBaseUrl}/rsvps/${rsvpId}/cancel`,
         {
           method: "PUT",
           headers: {
@@ -150,7 +147,7 @@ const EventTabs = ({ events = [], userRole, onEventUpdated }) => {
     }
     try {
       const res = await fetch(
-        `https://4f6b-49-36-144-50.ngrok-free.app/checkin/${Id}`,
+        `${apiBaseUrl}/checkin/${Id}`,
         {
           method: "POST",
           headers: {
@@ -181,10 +178,6 @@ const EventTabs = ({ events = [], userRole, onEventUpdated }) => {
   const handleSaveEdit = (updatedEvent) => {
     // Bubble up to parent (Dashboard) so it can update its list
     onEventUpdated(updatedEvent);
-    // Also, if we are currently viewing the detail modal for this event, update it
-    if (selectedEvent?.id === updatedEvent.id) {
-      setSelectedEvent(updatedEvent);
-    }
   };
 
   const tabsToRender = useMemo(() => {
@@ -233,12 +226,6 @@ const EventTabs = ({ events = [], userRole, onEventUpdated }) => {
           onCheckIn={handleCheckIn}
         />
       </div>
-      {/* Event‐detail modal (conditionally rendered) */}
-      <EventDetailModal
-        isOpen={!!selectedEvent}
-        event={selectedEvent}
-        onClose={handleCloseModal}
-      />
 
       {/* Edit Modal */}
       <EditEventModal

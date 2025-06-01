@@ -1,8 +1,7 @@
 // EditEventModal.jsx
 import React, { useState, useEffect } from "react";
 import toast from "react-hot-toast";
-
-
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 const EditEventModal = ({ isOpen, event, onClose, onSave }) => {
   const [formData, setFormData] = useState({
     title: "",
@@ -113,7 +112,7 @@ const EditEventModal = ({ isOpen, event, onClose, onSave }) => {
 
     try {
       const response = await fetch(
-        `https://4f6b-49-36-144-50.ngrok-free.app/events/${event.id}`,
+        `${apiBaseUrl}/events/${event.id}`,
         {
           method: "PATCH",
           headers: {

@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Line } from 'react-chartjs-2';
+import toast from 'react-hot-toast';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -22,7 +24,62 @@ ChartJS.register(
   Legend
 );
 
-const EventAnalytics = ({ eventData }) => {
+const EventAnalytics = () => {
+  const { eventId } = useParams();
+  const navigate = useNavigate();
+  const [eventData, setEventData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchAnalytics = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        toast.error("Not authenticated. Please log in.");
+        navigate("/login");
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          `https://4f6b-49-36-144-50.ngrok-free.app/events/${eventId}/analytics`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (response.status === 401 || response.status === 403) {
+          toast.error("Unauthorized. Please log in again.");
+          navigate("/login");
+          return;
+        }
+
+        const json = await response.json();
+        if (json.status === "success") {
+          setEventData(json.data);
+        } else {
+          toast.error("Failed to load analytics data");
+        }
+      } catch (err) {
+        console.error("Error fetching analytics:", err);
+        toast.error("Network error while loading analytics");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAnalytics();
+  }, [eventId, navigate]);
+
+  if (loading) {
+    return <div className="p-6 text-center">Loading analytics...</div>;
+  }
+
+  if (!eventData) {
+    return <div className="p-6 text-center">No analytics data available</div>;
+  }
+
   // Prepare data for the line chart
   const feedbackChartData = {
     labels: eventData.feedbackVolume.map(item => 

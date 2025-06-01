@@ -22,10 +22,7 @@ const EventTable = ({
             <th className="px-2 py-1 whitespace-nowrap">RSVP Deadline</th>
             <th className="px-2 py-1 whitespace-nowrap">Max Attendees</th>
             <th className="px-2 py-1 whitespace-nowrap">Status</th>
-            <th className="px-2 py-1 whitespace-nowrap">Edit</th>
-            {userRole === "HOST" && (
-              <th className="px-2 py-1 whitespace-nowrap">Invite</th>
-            )}
+            <th className="px-2 py-1 whitespace-nowrap">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -60,7 +57,7 @@ const EventTable = ({
               </td>
               <td className="px-2 py-1">{event.maxAttendees}</td>
               <td className="px-2 py-1">{event.status}</td>
-              <td className="px-2 py-1">
+              <td className="px-2 py-1 space-x-2">
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -70,20 +67,27 @@ const EventTable = ({
                 >
                   Edit
                 </button>
+                {userRole === "HOST" && (
+                  <>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onSendInvite(event.id);
+                      }}
+                      className="rounded bg-green-600 px-3 py-1 text-white text-sm hover:bg-green-700 transition"
+                    >
+                      Send Invite
+                    </button>
+                    <a
+                      href={`/events/${event.id}/analytics`}
+                      onClick={(e) => e.stopPropagation()}
+                      className="rounded bg-blue-600 px-3 py-1 text-white text-sm hover:bg-blue-700 transition inline-block"
+                    >
+                      Analytics
+                    </a>
+                  </>
+                )}
               </td>
-              {userRole === "HOST" && (
-                <td className="px-2 py-1">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onSendInvite(event.id);
-                    }}
-                    className="rounded bg-green-600 px-3 py-1 text-white text-sm hover:bg-green-700 transition"
-                  >
-                    Send Invite
-                  </button>
-                </td>
-              )}
             </tr>
           ))}
         </tbody>

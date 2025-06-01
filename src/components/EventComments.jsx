@@ -13,20 +13,20 @@ const EMOJI_OPTIONS = [
 
 const EventComments = ({ isEventLive }) => {
   const { eventId } = useParams();
-  const [comments, setComments] = useState([]);
+  const [feedback, setFeedback] = useState([]);
   const [newComment, setNewComment] = useState('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchComments();
+    fetchFeedback();
   }, [eventId]);
 
-  const fetchComments = async () => {
+  const fetchFeedback = async () => {
     const token = localStorage.getItem('token');
     if (!token) return;
 
     try {
-      const response = await fetch(`${apiBaseUrl}/events/${eventId}/comments`, {
+      const response = await fetch(`${apiBaseUrl}/feedback/${eventId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -35,12 +35,12 @@ const EventComments = ({ isEventLive }) => {
       if (response.ok) {
         const data = await response.json();
         if (data.status === 'success') {
-          setComments(data.data);
+          setFeedback(data.data);
         }
       }
     } catch (error) {
-      console.error('Error fetching comments:', error);
-      toast.error('Failed to load comments');
+      console.error('Error fetching feedback:', error);
+      toast.error('Failed to load feedback');
     } finally {
       setLoading(false);
     }
@@ -57,19 +57,22 @@ const EventComments = ({ isEventLive }) => {
     }
 
     try {
-      const response = await fetch(`${apiBaseUrl}/events/${eventId}/comments`, {
+      const response = await fetch(`${apiBaseUrl}/feedback/${eventId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ content: newComment }),
+        body: JSON.stringify({ 
+          type: 'TEXT',
+          content: newComment 
+        }),
       });
 
       if (response.ok) {
         const data = await response.json();
         if (data.status === 'success') {
-          setComments([...comments, data.data]);
+          fetchFeedback(); // Refresh all feedback
           setNewComment('');
           toast.success('Comment added successfully');
         }
@@ -80,7 +83,7 @@ const EventComments = ({ isEventLive }) => {
     }
   };
 
-  const handleReaction = async (commentId, emoji) => {
+  const handleReaction = async (emoji) => {
     const token = localStorage.getItem('token');
     if (!token) {
       toast.error('Please login to react');
@@ -88,22 +91,23 @@ const EventComments = ({ isEventLive }) => {
     }
 
     try {
-      const response = await fetch(`${apiBaseUrl}/events/${eventId}/comments/${commentId}/reactions`, {
+      const response = await fetch(`${apiBaseUrl}/feedback/${eventId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ emoji }),
+        body: JSON.stringify({ 
+          type: 'EMOJI',
+          content: emoji 
+        }),
       });
 
       if (response.ok) {
         const data = await response.json();
         if (data.status === 'success') {
-          // Update the comment's reactions in the local state
-          setComments(comments.map(comment => 
-            comment.id === commentId ? { ...comment, reactions: data.data.reactions } : comment
-          ));
+          fetchFeedback(); // Refresh all feedback
+          toast.success('Reaction added successfully');
         }
       }
     } catch (error) {
@@ -112,72 +116,90 @@ const EventComments = ({ isEventLive }) => {
     }
   };
 
+  // Calculate emoji counts
+  const emojiCounts = feedback
+    .filter(item => item.type === 'EMOJI')
+    .reduce((acc, item) => {
+      acc[item.content] = (acc[item.content] || 0) + 1;
+      return acc;
+    }, {});
+
+  // Get only text comments
+  const comments = feedback.filter(item => item.type === 'TEXT');
+
   if (loading) {
-    return <div className="text-center py-4">Loading comments...</div>;
+    return <div className="text-center py-4">Loading feedback...</div>;
   }
 
   return (
     <div className="mt-8 bg-white rounded-lg shadow p-6">
-      <h3 className="text-xl font-semibold mb-4">Comments & Reactions</h3>
+      <h3 className="text-xl font-semibold mb-4">Event Feedback</h3>
       
-      {isEventLive && (
-        <form onSubmit={handleAddComment} className="mb-6">
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-              placeholder="Add a comment..."
-              className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-              maxLength={200}
-            />
+      {/* Emoji Reactions Section */}
+      <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+        <h4 className="text-lg font-medium mb-3">Quick Reactions</h4>
+        <div className="flex gap-4">
+          {EMOJI_OPTIONS.map(({ emoji, label }) => (
             <button
-              type="submit"
-              className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
+              key={emoji}
+              onClick={() => handleReaction(emoji)}
+              className="px-4 py-2 rounded-full text-lg transition flex items-center gap-2 hover:bg-gray-100"
+              title={label}
             >
-              Comment
-            </button>
-          </div>
-        </form>
-      )}
-
-      <div className="space-y-4">
-        {comments.map((comment) => (
-          <div key={comment.id} className="border-b pb-4">
-            <div className="flex justify-between items-start">
-              <div>
-                <p className="font-medium">{comment.user.name}</p>
-                <p className="text-gray-600 mt-1">{comment.content}</p>
-              </div>
-              <span className="text-sm text-gray-500">
-                {new Date(comment.createdAt).toLocaleString()}
+              {emoji}
+              <span className="text-sm font-medium">
+                {emojiCounts[emoji] || 0}
               </span>
-            </div>
-            
-            <div className="mt-2 flex gap-2">
-              {EMOJI_OPTIONS.map(({ emoji, label }) => (
-                <button
-                  key={emoji}
-                  onClick={() => handleReaction(comment.id, emoji)}
-                  className={`px-2 py-1 rounded-full text-sm transition
-                    ${comment.reactions?.includes(emoji) 
-                      ? 'bg-purple-100 text-purple-600' 
-                      : 'hover:bg-gray-100'
-                    }`}
-                  title={label}
-                >
-                  {emoji} {comment.reactions?.filter(r => r === emoji).length || 0}
-                </button>
-              ))}
-            </div>
-          </div>
-        ))}
+            </button>
+          ))}
+        </div>
+      </div>
+      
+      {/* Comments Section */}
+      <div className="mt-6">
+        <h4 className="text-lg font-medium mb-3">Comments</h4>
         
-        {comments.length === 0 && (
-          <p className="text-gray-500 text-center py-4">
-            No comments yet. Be the first to comment!
-          </p>
+        {isEventLive && (
+          <form onSubmit={handleAddComment} className="mb-6">
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                placeholder="Add a comment..."
+                className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                maxLength={200}
+              />
+              <button
+                type="submit"
+                className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
+              >
+                Comment
+              </button>
+            </div>
+          </form>
         )}
+
+        <div className="space-y-4">
+          {comments.map((comment) => (
+            <div key={comment.id} className="border-b pb-4">
+              <div className="flex justify-between items-start">
+                <div>
+                  <p className="text-gray-600 mt-1">{comment.content}</p>
+                </div>
+                <span className="text-sm text-gray-500">
+                  {new Date(comment.createdAt).toLocaleString()}
+                </span>
+              </div>
+            </div>
+          ))}
+          
+          {comments.length === 0 && (
+            <p className="text-gray-500 text-center py-4">
+              No comments yet. Be the first to comment!
+            </p>
+          )}
+        </div>
       </div>
     </div>
   );

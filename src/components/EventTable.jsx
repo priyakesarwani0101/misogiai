@@ -63,7 +63,7 @@ const EventTable = ({
             <th className="px-2 py-1 whitespace-nowrap">Location</th>
             <th className="px-2 py-1 whitespace-nowrap">RSVP Deadline</th>
 
-            {/* Only show “Max Attendees” for hosts */}
+            {/* Only show "Max Attendees" for hosts */}
             {userRole === "HOST" && (
               <th className="px-2 py-1 whitespace-nowrap">Max Attendees</th>
             )}
@@ -83,6 +83,11 @@ const EventTable = ({
             {/* Only hosts can Send Invite */}
             {userRole === "HOST" && (
               <th className="px-2 py-1 whitespace-nowrap">Invite</th>
+            )}
+
+            {/* Analytics column for hosts */}
+            {userRole === "HOST" && (
+              <th className="px-2 py-1 whitespace-nowrap">Analytics</th>
             )}
           </tr>
         </thead>
@@ -165,6 +170,7 @@ const EventTable = ({
                     </div>
                   )}
                 </td>
+
                 {userRole === "ATTENDEE" && (
                   <td className="px-2 py-1">
                     {!event.checkInEnabled ? (
@@ -224,6 +230,7 @@ const EventTable = ({
                   </td>
                 )}
 
+                {/* Analytics button only for hosts */}
                 {userRole === "HOST" && (
                   <td className="px-2 py-1">
                     <a
@@ -231,21 +238,6 @@ const EventTable = ({
                       onClick={(e) => e.stopPropagation()}
                       className="inline-flex items-center space-x-1 rounded-lg bg-blue-600 px-3 py-1 text-white text-sm font-medium shadow hover:bg-blue-700 transition"
                     >
-                      {/* Chart Bar Icon */}
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M9 17v-6m4 6v-2m4 2V5"
-                        />
-                      </svg>
                       <span>Analytics</span>
                     </a>
                   </td>

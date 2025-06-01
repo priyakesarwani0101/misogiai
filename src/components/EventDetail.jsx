@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import EventComments from "./EventComments";
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 
@@ -9,6 +10,7 @@ const EventDetail = () => {
   const navigate = useNavigate();
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isEventLive, setIsEventLive] = useState(false);
 
   useEffect(() => {
     const fetchEventDetails = async () => {
@@ -38,6 +40,11 @@ const EventDetail = () => {
         const data = await response.json();
         if (data.status === "success") {
           setEvent(data.data);
+          // Check if event is currently live
+          const now = new Date();
+          const startTime = new Date(data.data.startDateTime);
+          const endTime = new Date(data.data.endDateTime || new Date(startTime.getTime() + 7200000)); // Default 2 hours if no end time
+          setIsEventLive(now >= startTime && now <= endTime);
         } else {
           toast.error(data.message || "Failed to fetch event details");
           navigate("/dashboard");
@@ -176,8 +183,21 @@ const EventDetail = () => {
                 </div>
               </div>
             </div>
+
+            {/* Event Status */}
+            <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+              <h3 className="text-lg font-semibold text-gray-700 mb-2">
+                Event Status
+              </h3>
+              <p className={`text-lg font-medium ${isEventLive ? 'text-green-600' : 'text-gray-600'}`}>
+                {isEventLive ? '🎉 Event is Live!' : '⏳ Event has not started yet'}
+              </p>
+            </div>
           </div>
         </div>
+
+        {/* Comments Section */}
+        <EventComments isEventLive={isEventLive} />
       </div>
     </div>
   );

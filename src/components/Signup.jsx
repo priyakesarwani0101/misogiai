@@ -1,6 +1,9 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
+
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+
 const Signup = () => {
   const navigate = useNavigate();
 
@@ -31,16 +34,16 @@ const Signup = () => {
       .then((res) => res.json())
       .then((res) => {
         if (res.status === "success") {
-         alert(`Successfully Signed up.`, res.message)
+          toast.success("Successfully signed up!");
           navigate("/login");
         } else {
           console.error("Signup failed:", res.message);
-          alert(`Signup failed: ${res.message}`);
+          toast.error(`Signup failed: ${res.message}`);
         }
       })
       .catch((err) => {
         console.error("Signup failed:", err);
-        alert("Signup failed. Please try again.");
+        toast.error("Signup failed. Please try again.");
       });
   };
 

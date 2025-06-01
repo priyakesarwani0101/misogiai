@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 
@@ -31,15 +32,17 @@ const Login = () => {
         if (res.status === "success") {
           localStorage.setItem("token", res.data.access_token);
           localStorage.setItem("loggedUser", JSON.stringify(res.data.user));
+          toast.success("Successfully logged in!");
           navigate("/dashboard");
-          alert(`Successfully Logged In.`, res.message)
         } else {
           setError(res.message || "Login failed. Please try again.");
+          toast.error(res.message || "Login failed. Please try again.");
         }
       })
       .catch((err) => {
         setError("An error occurred. Please try again.");
-        console.log(err)
+        toast.error("An error occurred. Please try again.");
+        console.log(err);
       });
   };
 

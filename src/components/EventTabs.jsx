@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import EventTable from "./EventTable";
 import EventDetailModal from "./EventDetailModal";
 import EditEventModal from "./EditEventModal";
+import toast from "react-hot-toast";
 const EventTabs = ({ events = [], userRole, onEventUpdated }) => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState(
@@ -42,10 +43,16 @@ const EventTabs = ({ events = [], userRole, onEventUpdated }) => {
       };
     } else {
       return {
-        my: events.filter((e) => e.attendees?.includes(currentUserId)),
+        my: events,
       };
     }
   }, [events, userRole, currentUserId]);
+
+  React.useEffect(() => {
+    if (userRole !== "HOST") {
+      setActiveTab("my");
+    }
+  }, [userRole]);
 
   // Row‐click handler: open the modal with this event’s details
   const handleRowClick = (eventObj) => {
@@ -65,6 +72,111 @@ const EventTabs = ({ events = [], userRole, onEventUpdated }) => {
     setEventToEdit(null);
   };
 
+  // Accept invite (ATTENDEE)
+  const handleAcceptInvite = async (rsvpId) => {
+    if (!token) {
+      toast.error("Not authenticated");
+      return;
+    }
+    try {
+      const res = await fetch(
+        `https://4f6b-49-36-144-50.ngrok-free.app/rsvps/${rsvpId}/accept`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (res.status === 401 || res.status === 403) {
+        toast.error("Session expired. Please log in again.");
+        navigate("/login");
+        return;
+      }
+      const json = await res.json();
+      if (json.status === "success" && json.data) {
+        toast.success("Invite accepted");
+        // json.data is the updated RSVP wrapper
+        onEventUpdated(json.data);
+      } else {
+        toast.error(`Accept failed: ${json.message}`);
+      }
+    } catch (err) {
+      console.error("Accept error:", err);
+      toast.error("Network error. Try again.");
+    }
+  };
+
+  // Reject invite (ATTENDEE)
+  const handleRejectInvite = async (rsvpId) => {
+    if (!token) {
+      toast.error("Not authenticated");
+      return;
+    }
+    try {
+      const res = await fetch(
+        `https://4f6b-49-36-144-50.ngrok-free.app/rsvps/${rsvpId}/cancel`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (res.status === 401 || res.status === 403) {
+        toast.error("Session expired. Please log in again.");
+        navigate("/login");
+        return;
+      }
+      const json = await res.json();
+      if (json.status === "success" && json.data) {
+        toast.success("Invite rejected");
+        onEventUpdated(json.data);
+      } else {
+        toast.error(`Reject failed: ${json.message}`);
+      }
+    } catch (err) {
+      console.error("Reject error:", err);
+      toast.error("Network error. Try again.");
+    }
+  };
+
+  const handleCheckIn = async (Id) => {
+    if (!token) {
+      toast.error("Not authenticated");
+      return;
+    }
+    try {
+      const res = await fetch(
+        `https://4f6b-49-36-144-50.ngrok-free.app/checkin/${Id}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (res.status === 401 || res.status === 403) {
+        toast.error("Session expired. Please log in again.");
+        navigate("/login");
+        return;
+      }
+      const json = await res.json();
+      if (json.status === "success" && json.data) {
+        toast.success("Checked In!");
+        onEventUpdated(json.data);
+      } else {
+        toast.error(`Check‐in failed: ${json.message}`);
+      }
+    } catch (err) {
+      console.error("Check-in error:", err);
+      toast.error("Network error. Try again.");
+    }
+  };
+
   // Called by EditEventModal on successful save
   const handleSaveEdit = (updatedEvent) => {
     // Bubble up to parent (Dashboard) so it can update its list
@@ -80,13 +192,6 @@ const EventTabs = ({ events = [], userRole, onEventUpdated }) => {
       return [{ key: "all", label: "All Events:" }];
     } else {
       return [{ key: "my", label: "My Events" }];
-    }
-  }, [userRole]);
-
-  // If the user is an attendee, make sure activeTab = "my"
-  React.useEffect(() => {
-    if (userRole !== "HOST") {
-      setActiveTab("my");
     }
   }, [userRole]);
 
@@ -123,6 +228,9 @@ const EventTabs = ({ events = [], userRole, onEventUpdated }) => {
           onEdit={handleEdit}
           userRole={userRole}
           onSendInvite={handleSendInvite}
+          onAcceptInvite={handleAcceptInvite}
+          onRejectInvite={handleRejectInvite}
+          onCheckIn={handleCheckIn}
         />
       </div>
       {/* Event‐detail modal (conditionally rendered) */}

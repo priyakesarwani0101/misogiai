@@ -1,20 +1,16 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Calendar } from "lucide-react";
 
 const Navbar = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    setIsLoggedIn(!!token);
-  }, []);
+  // Compute login status directly from localStorage on each render
+  const token = localStorage.getItem("token");
+  const isLoggedIn = Boolean(token);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("loggedUser");
-    setIsLoggedIn(false);
     navigate("/");
   };
 
@@ -22,9 +18,7 @@ const Navbar = () => {
     <nav className="bg-white shadow-md py-4 px-6 flex justify-between items-center">
       {/* Logo/Brand */}
       <div className="text-2xl font-bold text-purple-600">
-        <Link to="/">
-          EventPulse
-        </Link>
+        <Link to="/">EventPulse</Link>
       </div>
 
       {/* Links */}
@@ -58,3 +52,4 @@ const Navbar = () => {
 };
 
 export default Navbar;
+

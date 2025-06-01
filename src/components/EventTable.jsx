@@ -165,41 +165,6 @@ const EventTable = ({
                     </div>
                   )}
                 </td>
-
-                {/* {userRole === "ATTENDEE" && (
-                  <td className="px-2 py-1">
-                    {event.checkInEnabled ? (
-                      // If not yet confirmed, show “Pending”
-                      !event.confirmed ? (
-                        <span className="text-yellow-600 font-medium">
-                          Pending
-                        </span>
-                      ) : event.checkedIn ? (
-                        // If already checked in, disable button
-                        <button
-                          disabled
-                          className="rounded bg-gray-400 px-3 py-1 text-white text-sm cursor-not-allowed"
-                        >
-                          Checked In
-                        </button>
-                      ) : (
-                        // Otherwise (checkInEnabled && confirmed && not checkedIn), show “Check In”
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onCheckIn?.(event.id);
-                          }}
-                          className="rounded bg-blue-600 px-3 py-1 text-white text-sm hover:bg-blue-700 transition"
-                        >
-                          Check In
-                        </button>
-                      )
-                    ) : (
-                      <span className="text-gray-500">—</span>
-                    )}
-                  </td>
-                )} */}
-
                 {userRole === "ATTENDEE" && (
                   <td className="px-2 py-1">
                     {!event.checkInEnabled ? (
@@ -256,6 +221,33 @@ const EventTable = ({
                     >
                       Send Invite
                     </button>
+                  </td>
+                )}
+
+                {userRole === "HOST" && (
+                  <td className="px-2 py-1">
+                    <a
+                      href={`/events/${event.id}/analytics`}
+                      onClick={(e) => e.stopPropagation()}
+                      className="inline-flex items-center space-x-1 rounded-lg bg-blue-600 px-3 py-1 text-white text-sm font-medium shadow hover:bg-blue-700 transition"
+                    >
+                      {/* Chart Bar Icon */}
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-4 w-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 17v-6m4 6v-2m4 2V5"
+                        />
+                      </svg>
+                      <span>Analytics</span>
+                    </a>
                   </td>
                 )}
               </tr>

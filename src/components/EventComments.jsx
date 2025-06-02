@@ -65,7 +65,7 @@ const EventComments = ({ isEventLive }) => {
         },
         body: JSON.stringify({ 
           type: 'TEXT',
-          content: newComment 
+          comment: newComment 
         }),
       });
 
@@ -99,7 +99,7 @@ const EventComments = ({ isEventLive }) => {
         },
         body: JSON.stringify({ 
           type: 'EMOJI',
-          content: emoji 
+          emoji: emoji 
         }),
       });
 

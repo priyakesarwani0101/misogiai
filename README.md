@@ -1,12 +1,30 @@
-# React + Vite
+# EventPulse — Real-Time RSVP & Feedback Platform
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Live Demo:** [https://misogiai-dkka.onrender.com](https://misogiai-dkka.onrender.com)
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Project Overview
 
-## Expanding the ESLint configuration
+EventPulse is a real-time event management platform enabling hosts to create and manage events, track RSVPs and check-ins live on the event day, and collect instant attendee feedback through comments and emoji reactions. Attendees can RSVP, check in on event day, and provide live feedback, making both virtual and physical event experiences interactive and easy to manage.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+---
+
+## Technology Stack
+
+- **Frontend:** React + Vite + Tailwind CSS  
+- **Backend:** Node.js with NestJS framework, PostgreSQL database, TypeORM ORM  
+
+---
+
+## Features
+
+- Event creation and management by hosts with timezone support  
+- RSVP system with invitation and cancellation handling  
+- Time-gated attendee check-in on event day  
+- Live feedback submission including emoji reactions and comments  
+- Real-time updates for hosts to monitor attendance and feedback  
+- Post-event analytics including RSVP vs check-in stats, emoji popularity, and keyword extraction  
+- Email notifications for RSVP confirmation, check-in reminders, and event summaries (mocked)
+
+---

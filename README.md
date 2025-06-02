@@ -13,7 +13,8 @@ EventPulse is a real-time event management platform enabling hosts to create and
 ## Technology Stack
 
 - **Frontend:** React + Vite + Tailwind CSS  
-- **Backend:** Node.js with NestJS framework, PostgreSQL database, TypeORM ORM  
+- **Backend:** Node.js with NestJS framework, PostgreSQL database, TypeORM ORM
+- **Misogi Backend Github Link:** [https://github.com/priyakesarwani0101/misogiai_backend](https://github.com/priyakesarwani0101/misogiai_backend)
 
 ---
 
